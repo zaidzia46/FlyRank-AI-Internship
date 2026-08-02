@@ -36,4 +36,5 @@ uvicorn main:app --reload
 SELECT COUNT(*) FROM tasks;
 ```
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/22b6a9a3-3b41-40ba-b8f1-ad62a028fbea" />
+<img width="1536" height="1024" alt="dbSS" src="https://github.com/user-attachments/assets/da04de75-5f0f-43f0-a6cf-725b968e1f3d" />
+
