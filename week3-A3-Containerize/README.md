@@ -1,4 +1,4 @@
-# Tasks API — Postgres + Docker
+# Tasks API - Postgres + Docker
 
 Same CRUD API, now backed by Postgres running in Docker instead of
 SQLite. The routes never changed — only `postgres_repository.py`,
