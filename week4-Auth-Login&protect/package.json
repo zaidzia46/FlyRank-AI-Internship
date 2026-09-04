@@ -1,6 +1,6 @@
 {
   "name": "flyrank-auth-neon",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "FlyRank A4 - Auth (login & protect) using NeonDB + custom JWT auth instead of Supabase",
   "main": "server.js",
   "scripts": {
@@ -11,6 +11,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.11.5"
+    "pg": "^8.11.5",
+    "swagger-ui-express": "^5.0.1"
   }
 }
