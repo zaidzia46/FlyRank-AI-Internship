@@ -1,20 +1,23 @@
-# Stage 0: Set up NeonDB & the server
+# Stage 1: Open auth - Sign Up & Log In
 
-What this stage does:
-- Creates a free Neon project (https://neon.tech) and a `users` table (see `schema.sql`).
-- Loads `DATABASE_URL` / `JWT_SECRET` / `PORT` from a git-ignored `.env`.
-- Boots an Express server and confirms it can talk to Neon with `SELECT 1`.
-
-Setup:
-1. `npm install`
-2. Create a Neon project, copy the pooled connection string into `.env` (copy `.env.example` first).
-3. Run `schema.sql` against your Neon database (SQL Editor in the Neon console, or `psql "$DATABASE_URL" -f schema.sql`).
-4. `npm start`
+What this stage adds:
+- `POST /auth/signup` - validates input, hashes the password with bcrypt, stores the user in Neon, returns 201.
+- `POST /auth/login` - checks credentials against the stored hash, signs a JWT access token + refresh token, returns 200.
 
 Checkpoint:
 ```
-node server.js
-# -> "Server running on port 3000 and connected to NeonDB"
+curl -i -X POST http://localhost:3000/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123"}'
+# -> 201
+
+curl -i -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123"}'
+# -> 200, body includes "access_token"
+
+curl -i -X POST http://localhost:3000/auth/signup -H "Content-Type: application/json" -d '{"email":"test@example.com"}'
+# -> 400
 ```
 
-Commit message: `Stage 0: setup server and neon db connection`
+Commit message: `Stage 1: signup and login routes working`
