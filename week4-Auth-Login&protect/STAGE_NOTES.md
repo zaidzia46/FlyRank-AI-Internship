@@ -1,23 +1,13 @@
-# Stage 1: Open auth - Sign Up & Log In
+# Stage 2: The public & protected gates
 
 What this stage adds:
-- `POST /auth/signup` - validates input, hashes the password with bcrypt, stores the user in Neon, returns 201.
-- `POST /auth/login` - checks credentials against the stored hash, signs a JWT access token + refresh token, returns 200.
+- `GET /public/info` - always 200, no auth.
+- `GET /protected/profile` - 401 if no `Authorization: Bearer <token>` header is present. Doesn't verify the token yet.
 
 Checkpoint:
 ```
-curl -i -X POST http://localhost:3000/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password123"}'
-# -> 201
-
-curl -i -X POST http://localhost:3000/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password123"}'
-# -> 200, body includes "access_token"
-
-curl -i -X POST http://localhost:3000/auth/signup -H "Content-Type: application/json" -d '{"email":"test@example.com"}'
-# -> 400
+curl -i http://localhost:3000/public/info                 # -> 200
+curl -i http://localhost:3000/protected/profile            # -> 401 (no token sent)
 ```
 
-Commit message: `Stage 1: signup and login routes working`
+Commit message: `Stage 2: public route and unverified protected route`
