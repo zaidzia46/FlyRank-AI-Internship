@@ -1,0 +1,16 @@
+[
+  {
+    "title": "A Light in the Attic",
+    "product_url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+    "price_gbp": 51.77,
+    "price_text": "\u00a351.77",
+    "in_stock": true,
+    "stock_count": 22,
+    "availability_text": "In stock (22 available)",
+    "rating": 3,
+    "rating_text": "Three",
+    "description": "It's hard to imagine a world without A Light in the Attic. This now-classic collection of poetry and drawings from Shel Silverstein celebrates its 20th anniversary with this special edition.",
+    "source_page": "https://books.toscrape.com/catalogue/page-1.html",
+    "fetched_at": "2026-09-17T11:02:00Z"
+  }
+]

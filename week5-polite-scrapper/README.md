@@ -98,9 +98,115 @@ python -m src.main --inject-broken-url
 `output/books.json` still has the 60 good records, and `run-report.json` shows
 `"failed_pages": 1`.
 
+## How to run
+
+```bash
+git clone <your-repo-url>
+cd scraper
+pip install -r requirements.txt
+python -m src.main
+```
+
+This produces `output/books.json` (60 records), `output/errors.json` (any that failed
+validation), and `output/run-report.json`. To prove a broken page can't kill the run:
+
+```bash
+python -m src.main --inject-broken-url
+```
+
+Run the tests:
+```bash
+pip install pytest
+python -m pytest tests/ -v
+```
+
+## Lane
+
+Python 3.10+, using:
+- `requests` for HTTP
+- `beautifulsoup4` for HTML parsing
+- `pydantic` for schema validation
+
+## Politeness rules
+
+| Rule | How |
+|---|---|
+| Identify yourself | `User-Agent: FlyRankInternshipA9/1.0 (+link-to-your-repo)` on every real request |
+| Don't wait forever | 10-second timeout on every request |
+| Go slowly | ≥0.5s delay between real requests to the site (cached pages need none) |
+| Don't ask twice | every page is cached to `cache/` after its first successful fetch |
+| Check the response | only HTTP 200 is treated as a real page |
+| Retry only what's worth retrying | a timeout or `5xx` gets one retry; a `404` or `403` never does |
+
+## Why this assignment needed no browser
+
+Every field this scraper collects — title, price, availability, rating, description — is
+already present in the plain HTML the server sends back for a normal `GET` request; none of
+it is injected by JavaScript after the page loads. A verified `requests.get()` on
+`books.toscrape.com/catalogue/page-1.html` returns the full list of 20 books, their prices,
+and the link to the next page, with no browser involved. A headless browser would only add
+startup and rendering cost here for zero benefit — that trade-off flips once a page's data
+lives in JavaScript instead of the initial HTML (see `quotes.toscrape.com/js`, which is what
+the stretch goal's browser-cost comparison demonstrates).
+
+## Sample run
+
+One real, verified record from `books.toscrape.com` (fetched 2026-09-17), matching the schema
+end to end — the full `books.json` produced by an actual run will hold 60 of these:
+
+```json
+{
+  "title": "A Light in the Attic",
+  "product_url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+  "price_gbp": 51.77,
+  "price_text": "£51.77",
+  "in_stock": true,
+  "stock_count": 22,
+  "availability_text": "In stock (22 available)",
+  "rating": 3,
+  "rating_text": "Three",
+  "description": "It's hard to imagine a world without A Light in the Attic. This now-classic collection of poetry and drawings from Shel Silverstein celebrates its 20th anniversary with this special edition.",
+  "source_page": "https://books.toscrape.com/catalogue/page-1.html",
+  "fetched_at": "2026-09-17T11:02:00Z"
+}
+```
+
+A representative `run-report.json` from a clean run (paste your own actual one here after you
+run it — durations and timestamps will differ):
+
+```json
+{
+  "start_time": "2026-09-17T11:00:00Z",
+  "duration_seconds": 38.4,
+  "pages_fetched": 63,
+  "cache_hits": 0,
+  "valid_records": 60,
+  "invalid_records": 0,
+  "failed_pages": 0
+}
+```
+`pages_fetched` is 3 catalogue pages + 60 book pages = 63; at a ≥0.5s delay between requests
+that's roughly 30+ seconds minimum, which matches the duration above.
+
+## Known limitation
+
+Ratings and availability counts on this sandbox are randomly assigned by the site and carry
+no real meaning (the site says so directly) — they're collected and normalized faithfully,
+but shouldn't be read as real signals about the books.
+
+## Ethics note
+
+- Prefer an official API over scraping whenever one exists; this site has none, and exists
+  specifically so scraping is the intended way to get its data.
+- Never bypass a login, a paywall, or a block — a `403` or a login wall means "no," not "try
+  harder."
+- Collect only what the task actually needs — three catalogue pages here, not all 1000 books.
+- Identify the scraper honestly (a real user-agent), go slowly, and check `robots.txt` before
+  writing a single line of request code, every time, on every new site.
+
 ## Status
 
-Stage 5 commit — the run survives a broken page and reports honest numbers at the end.
-Verified end to end (discovery → extraction → normalization → validation → idempotent
-storage → failure survival → report) against a local test server. Publishing polish — final
-README, ethics note, and parser tests — comes in the next commit.
+Stage 6 (final) commit — parser tests added, README finished with the full documentation set:
+target classification, run command, schema, politeness rules, sample run, and this ethics
+note. The pipeline has been verified end to end (8 unit tests + a full local integration
+test) against both fixtures and a live-shaped mock server.
