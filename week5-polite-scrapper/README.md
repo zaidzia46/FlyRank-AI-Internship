@@ -203,10 +203,3 @@ but shouldn't be read as real signals about the books.
 - Collect only what the task actually needs — three catalogue pages here, not all 1000 books.
 - Identify the scraper honestly (a real user-agent), go slowly, and check `robots.txt` before
   writing a single line of request code, every time, on every new site.
-
-## Status
-
-Stage 6 (final) commit — parser tests added, README finished with the full documentation set:
-target classification, run command, schema, politeness rules, sample run, and this ethics
-note. The pipeline has been verified end to end (8 unit tests + a full local integration
-test) against both fixtures and a live-shaped mock server.
