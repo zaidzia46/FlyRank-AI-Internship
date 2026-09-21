@@ -52,6 +52,29 @@ Selectors are aimed at the product area of the page (`div.product_main`), not th
 document. Books with no description store `null` — the code never invents text that wasn't
 on the page.
 
+## Record shape (clean, validated)
+
+`price_text` becomes a numeric `price_gbp`, the original text is kept alongside it, and the
+absolute `product_url` is each record's canonical identity — if the same book turns up twice,
+it counts once. The full schema (defined once with Pydantic in `src/schema.py`):
+
+| field | type | notes |
+|---|---|---|
+| `title` | string | |
+| `product_url` | URL | canonical identity |
+| `price_gbp` | number | normalized from `price_text` |
+| `price_text` | string | original, kept for reference |
+| `in_stock` | bool | |
+| `stock_count` | number \| null | |
+| `availability_text` | string | original |
+| `rating` | number \| null | normalized from `rating_text` |
+| `rating_text` | string \| null | original |
+| `description` | string \| null | `null`, never invented |
+| `source_page`, `fetched_at` | string | provenance |
+
+A record that fails validation is written to `output/errors.json` with a reason and never
+reaches `books.json`.
+
 ## Try it
 
 ```bash
@@ -59,10 +82,14 @@ pip install -r requirements.txt
 python -m src.main
 ```
 
-Expected output on a fresh run: one complete raw record (all eight keys, `description` may be
-`null`), followed by `detail_pages=60`.
+Expected output on a fresh run:
+```
+valid=60 invalid=0
+```
+`output/books.json` holds exactly 60 records, every `price_gbp` is a number, every URL starts
+with `https://`. Running it again still produces exactly 60 — not 120.
 
 ## Status
 
-Stage 3 commit — raw extraction is working for all 60 book pages. Normalization, schema
-validation, and the run report come in later commits.
+Stage 4 commit — normalization, schema validation, and storage are working; the pipeline is
+idempotent. Per-page failure handling and the run report come in the next commit.
