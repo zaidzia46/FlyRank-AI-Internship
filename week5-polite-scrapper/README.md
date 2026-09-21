@@ -75,6 +75,15 @@ it counts once. The full schema (defined once with Pydantic in `src/schema.py`):
 A record that fails validation is written to `output/errors.json` with a reason and never
 reaches `books.json`.
 
+## Surviving failures
+
+Each page is handled separately, so one broken page is logged and skipped — it never takes
+the rest of the run down. A timeout or a `5xx` server error gets one retry with a short wait;
+a `404` (the page doesn't exist) or `403` (the site said no) is never retried.
+
+Every run ends with `output/run-report.json` — a few honest numbers: start time, duration,
+pages fetched, cache hits, valid records, invalid records, failed pages.
+
 ## Try it
 
 ```bash
@@ -82,14 +91,16 @@ pip install -r requirements.txt
 python -m src.main
 ```
 
-Expected output on a fresh run:
+To prove one bad page can't kill the run, add one made-up book URL on purpose:
+```bash
+python -m src.main --inject-broken-url
 ```
-valid=60 invalid=0
-```
-`output/books.json` holds exactly 60 records, every `price_gbp` is a number, every URL starts
-with `https://`. Running it again still produces exactly 60 — not 120.
+`output/books.json` still has the 60 good records, and `run-report.json` shows
+`"failed_pages": 1`.
 
 ## Status
 
-Stage 4 commit — normalization, schema validation, and storage are working; the pipeline is
-idempotent. Per-page failure handling and the run report come in the next commit.
+Stage 5 commit — the run survives a broken page and reports honest numbers at the end.
+Verified end to end (discovery → extraction → normalization → validation → idempotent
+storage → failure survival → report) against a local test server. Publishing polish — final
+README, ethics note, and parser tests — comes in the next commit.
