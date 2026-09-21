@@ -23,7 +23,24 @@ A small, polite scraping pipeline for FlyRank Internship, Backend Track, Week 5 
 
 **I will not reuse this code on another site without checking its rules and terms first.**
 
+## Politeness rules (so far)
+
+Every real request to the site:
+- sends an honest **user-agent**: `FlyRankInternshipA9/1.0 (+link-to-your-repo)`
+- has a 10-second **timeout** — it never waits forever
+- checks the **status code** — only HTTP 200 is treated as a real page
+- is saved to `cache/` — while developing, a page is asked for once; every run after that
+  reads the saved copy instead
+
+## Try it
+
+```bash
+pip install -r requirements.txt
+python -m src.main   # first run: FETCH ... and creates cache/
+python -m src.main   # second run: CACHE HIT ... (no new request sent)
+```
+
 ## Status
 
-This is the Stage 0 commit — project scaffolding and target classification only. No requests
-have been made yet.
+Stage 1 commit — polite fetch-with-cache is working for a single page. Discovery, extraction,
+validation, and the run report come in later commits.
