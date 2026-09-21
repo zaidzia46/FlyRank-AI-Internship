@@ -1,0 +1,11 @@
+# Cached HTML - never commit, only used locally during development
+cache/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
