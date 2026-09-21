@@ -31,6 +31,27 @@ Every real request to the site:
 - checks the **status code** — only HTTP 200 is treated as a real page
 - is saved to `cache/` — a page is asked for once; every run after that reads the saved copy
 
+## Record shape (raw, before cleaning)
+
+Each book page produces this raw record — nothing normalized yet:
+
+```json
+{
+  "title": "A Light in the Attic",
+  "product_url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+  "price_text": "£51.77",
+  "availability_text": "In stock (22 available)",
+  "rating_text": "Three",
+  "description": "...",
+  "source_page": "https://books.toscrape.com/catalogue/page-1.html",
+  "fetched_at": "2026-08-06T10:00:00Z"
+}
+```
+
+Selectors are aimed at the product area of the page (`div.product_main`), not the whole
+document. Books with no description store `null` — the code never invents text that wasn't
+on the page.
+
 ## Try it
 
 ```bash
@@ -38,14 +59,10 @@ pip install -r requirements.txt
 python -m src.main
 ```
 
-Expected output on a fresh run:
-```
-catalogue_pages=3 discovered=60 unique_urls=60
-```
-A second run reports the same numbers, mostly from cache.
+Expected output on a fresh run: one complete raw record (all eight keys, `description` may be
+`null`), followed by `detail_pages=60`.
 
 ## Status
 
-Stage 2 commit — discovery is working: the scraper follows the catalogue's own "next" links
-for 3 pages and collects every unique book URL. Extraction, validation, and the run report
-come in later commits.
+Stage 3 commit — raw extraction is working for all 60 book pages. Normalization, schema
+validation, and the run report come in later commits.
