@@ -1,12 +1,3 @@
-"""
-The six lines from the assignment, made real:
-  build the prompt -> call the model, with timeout + retries on the right
-  errors only -> parse + validate the output -> repair once if it failed
-  -> return clean JSON, or raise for the route to turn into a 422/504/502.
-
-Never returns raw model text - callers only ever get a validated TriageOutput
-or one of the exceptions below.
-"""
 import os
 import re
 import json

@@ -1,8 +1,3 @@
-"""
-The shape of the triage endpoint, defined once. Straight from JOB-CARD.md.
-Category-like fields are Literal types, which Pydantic enforces as a
-closed list - anything outside it is a validation failure, not a new value.
-"""
 from typing import Literal
 from pydantic import BaseModel, Field
 
