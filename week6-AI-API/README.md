@@ -194,9 +194,3 @@ for a real number once you're on a paid model.
 Add the "measure before you spend" stretch: count tokens before sending and reject anything
 over a set limit, so a single oversized `text` field can't produce a surprise bill. Right now
 the 2000-character input cap bounds this loosely, but it's characters, not tokens.
-
-## Status
-
-Stage 5 (final) commit — eval set and runner added, tests verify the full pipeline against a
-local mock model, README finished with all required sections: job card, curl example,
-provider/model, verification results, cost log and estimate, and this "what I'd fix" line.
