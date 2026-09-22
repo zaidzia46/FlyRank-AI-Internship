@@ -78,8 +78,40 @@ curl -X POST http://localhost:8000/triage \
 At this stage the response is still raw model text (`{"raw_model_output": "..."}`) — schema
 validation lands in the next commit.
 
+## Making the output trustworthy
+
+The model's answer is untrusted input, same as any external data source:
+1. **Parse** — strip a code fence or a leading sentence if the model added one.
+2. **Validate** — against the `TriageOutput` schema. A structurally valid JSON object with a
+   category outside the enum still fails here.
+3. **Repair once** — send the broken answer plus the exact validation error back, ask for a
+   corrected version. Fixes most schema failures in practice.
+4. **Quarantine on a second failure** — return `422` with a clear message, log the raw output,
+   input, and reason to `logs/quarantine.jsonl`. Never crash, never guess a default.
+
+Raw model text is never returned to the caller, on success or on failure.
+
+## Try it
+
+```bash
+pip install -r requirements.txt
+uvicorn src.main:app --reload
+```
+
+```bash
+curl -X POST http://localhost:8000/triage \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I was charged twice this month"}'
+```
+
+To see the failure path, temporarily edit `prompts/triage-v1.md` to demand a category outside
+the enum, restart, and call it again — you get a `422` and a new line in
+`logs/quarantine.jsonl`. Undo the edit afterward.
+
 ## Status
 
-Stage 2 commit — the prompt is a versioned file, wired to a real model call for three
-different inputs. Not yet trustworthy: the model's answer is returned as-is, with no parsing,
-validation, or repair. That's next.
+Stage 3 commit — model output is parsed, validated, repaired once, and quarantined on a second
+failure. Verified against a local mock model covering: malformed JSON that repairs
+successfully, malformed JSON that never repairs (422 + quarantine line), and a valid-JSON
+answer with a category outside the enum (correctly rejected). Timeouts, a real retry policy,
+cost logging, and the kill switch come in the next commit.
