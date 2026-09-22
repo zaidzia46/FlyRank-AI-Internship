@@ -54,9 +54,32 @@ curl -X POST http://localhost:8000/triage \
   -d '{}'
 ```
 
+## The prompt
+
+Lives in `prompts/triage-v1.md`, not as a string in the route — it's code, it's versioned, and
+it can be diffed when quality changes. It has five parts in order: role, exact output shape,
+rules, a when-unsure instruction, and three examples (typical / ambiguous / hostile-or-empty).
+The user's message is JSON-encoded and sent as its own `user` message, never glued into the
+system prompt.
+
+## Try it
+
+```bash
+pip install -r requirements.txt
+uvicorn src.main:app --reload
+```
+
+```bash
+curl -X POST http://localhost:8000/triage \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I was charged twice this month"}'
+```
+
+At this stage the response is still raw model text (`{"raw_model_output": "..."}`) — schema
+validation lands in the next commit.
+
 ## Status
 
-Stage 1 commit — the endpoint exists, input is validated before anything else happens (a
-missing/wrong-type/over-length field never gets near a model call), the output schema is
-defined in code, and `LLM_STUB=1` returns a hard-coded schema-valid response. The real model
-call is wired up in the next commit — until then, an unstubbed request returns `501`.
+Stage 2 commit — the prompt is a versioned file, wired to a real model call for three
+different inputs. Not yet trustworthy: the model's answer is returned as-is, with no parsing,
+validation, or repair. That's next.
