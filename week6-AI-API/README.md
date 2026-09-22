@@ -108,10 +108,36 @@ To see the failure path, temporarily edit `prompts/triage-v1.md` to demand a cat
 the enum, restart, and call it again — you get a `422` and a new line in
 `logs/quarantine.jsonl`. Undo the edit afterward.
 
+## Production hardening
+
+| Concern | What's done |
+|---|---|
+| Timeout | 30s on the client (SDK default is 10 minutes). A timed-out call returns `504`. |
+| Retries | Yes on timeout / `429` / `5xx`, with exponential backoff + jitter (~1s, ~2s, ~4s), honoring `Retry-After` when present. **Never** on `400` / `401` / `403` — asking again won't fix a bad key. SDK's own 2x default retry is disabled (`max_retries=0`); this is our own policy instead. |
+| Cost logging | One structured JSON line to stdout per call: prompt version, model, input/output tokens, duration, whether it needed a repair. |
+| Kill switch | `LLM_ENABLED=false` skips the model entirely and returns a deterministic, schema-valid fallback (`category: "other"`, `fallback: true`) — no deploy needed to turn the feature off. |
+
+## Try it
+
+```bash
+pip install -r requirements.txt
+uvicorn src.main:app --reload
+```
+
+```bash
+curl -X POST http://localhost:8000/triage \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I was charged twice this month"}'
+```
+
+Kill switch (zero model calls, immediate deterministic answer):
+```bash
+LLM_ENABLED=false uvicorn src.main:app --reload
+```
+
 ## Status
 
-Stage 3 commit — model output is parsed, validated, repaired once, and quarantined on a second
-failure. Verified against a local mock model covering: malformed JSON that repairs
-successfully, malformed JSON that never repairs (422 + quarantine line), and a valid-JSON
-answer with a category outside the enum (correctly rejected). Timeouts, a real retry policy,
-cost logging, and the kill switch come in the next commit.
+Stage 4 commit — timeout, retry policy, cost logging, and the kill switch are all in place.
+Verified against a local mock model covering: 429-then-success (retried), persistent 500
+(retries exhaust, clean failure), 401 (never retried, fails on the first call), and a slow
+response (triggers the timeout). The eval set and final publish-ready README come next.
