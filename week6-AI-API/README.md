@@ -33,7 +33,30 @@ Expected output: a line containing `ready`.
 Three environment variables are the only difference between a model running on your laptop
 and one running in a datacenter — nobody should ever hard-code a provider.
 
+## Try it
+
+```bash
+pip install -r requirements.txt
+LLM_STUB=1 uvicorn src.main:app --reload
+```
+
+Valid request (200, schema-shaped, zero model calls):
+```bash
+curl -X POST http://localhost:8000/triage \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I was charged twice this month"}'
+```
+
+Deliberately broken request (400, names the field):
+```bash
+curl -X POST http://localhost:8000/triage \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
 ## Status
 
-Stage 0 commit — job card written, provider chosen and working, key safely in `.env`
-(git-ignored) with `.env.example` committed alongside it. No endpoint yet.
+Stage 1 commit — the endpoint exists, input is validated before anything else happens (a
+missing/wrong-type/over-length field never gets near a model call), the output schema is
+defined in code, and `LLM_STUB=1` returns a hard-coded schema-valid response. The real model
+call is wired up in the next commit — until then, an unstubbed request returns `501`.
