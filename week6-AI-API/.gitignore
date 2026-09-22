@@ -1,0 +1,14 @@
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Runtime logs (quarantine.jsonl is generated, not committed)
+logs/*.jsonl
+
+# OS
+.DS_Store
