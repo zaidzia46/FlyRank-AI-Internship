@@ -72,7 +72,7 @@ Open **http://localhost:8288** to watch each node's step execute in Inngest's ow
    a `start` decision node ("Is this a support request?") branching YES → Support, NO → Sales.
 2. Or build your own: add a node (give it an id, a label, a type, and - for decision nodes -
    a yes/no prompt), then connect nodes with YES/NO edges, then set the start node.
-3. Click **▶ Run workflow**. The canvas colors the active node while it's being evaluated,
+3. Click **Run workflow**. The canvas colors the active node while it's being evaluated,
    then colors the whole path green/red as each YES/NO comes back, and the traversed edges
    get a thicker line. The execution log panel on the right shows each step's prompt and
    result as it happens.
