@@ -1,8 +1,3 @@
-"""
-The visual flow editor. Pure Python (Dash compiles this to a browser UI -
-no JSX/React written by us). Mounted on the same Flask server that serves
-the Inngest function (see app/server.py), so one process runs both.
-"""
 import json
 import uuid
 
