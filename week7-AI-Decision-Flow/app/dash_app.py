@@ -76,7 +76,7 @@ def _layout():
             ], className="mb-3"),
             dcc.Download(id="download-json"),
 
-            dbc.Button("▶ Run workflow", id="run-btn", color="success", className="w-100 mb-2"),
+            dbc.Button("Run workflow", id="run-btn", color="success", className="w-100 mb-2"),
             html.Div(id="validation-messages"),
         ]),
     ], style={"width": "340px", "overflowY": "auto"})
